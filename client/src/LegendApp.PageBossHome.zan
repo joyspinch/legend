@@ -2,6 +2,7 @@ using System;
 using Gui;
 using Gui.Widget;
 using Legend;
+using Game.Data;
 
 // 页 3「BOSS之家」——照原版 `BOSS之家.png` 1:1 还原。
 // 与场景页家族（幻境/秘境/世界BOSS）不同：左半 = 玩家头像 + 10 行属性栏
@@ -32,7 +33,7 @@ partial class LegendApp {
             if (idx >= 0 && idx < net.BossCount()) {
                 BossInfo bi = net.TypedBossAt(idx);
                 if (bi != null) {
-                    int pic = DataTable.Integer(bi.Picture, "picture");
+                    int pic = DataValues.ParseInt(bi.Picture, "picture");
                     if (pic <= 0) { pic = bi.Tpl > 0 ? bi.Tpl : bi.Id; }
                     return new BossDetail(
                         bi.Tpl > 0 ? bi.Tpl : bi.Id,

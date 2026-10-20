@@ -2,6 +2,7 @@ using System;
 using Gui;
 using Gui.Widget;
 using Legend;
+using Game.Data;
 
 // 页 27「商店」——照原版还原，规格见 Spec / REFERENCE_AUDIT §5.4。
 // · 顶行：4 个货币 tab（元宝 / 金币 / 推广币 / 灵符）+ 右端「激活码：」输入框 + 「使用」

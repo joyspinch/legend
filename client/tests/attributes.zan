@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Legend;
+using Game.Data;
 
 class LegendAttributeTests {
     static int checks;

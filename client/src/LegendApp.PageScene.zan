@@ -2,6 +2,7 @@ using System;
 using Gui;
 using Gui.Widget;
 using Legend;
+using Game.Data;
 
 // 场景页家族内部用的无参回调（与 Gui.Action 等价，但写在 file 顶作用域，
 // 让 `delegate {...}` 字面量也能解到）。

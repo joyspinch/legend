@@ -2,6 +2,7 @@ using System;
 using Gui;
 using Gui.Widget;
 using Legend;
+using Game.Data;
 
 // 页 22「交易市场」——照原版逐像素还原（`mir2/mir/交易市场.png`）。
 // 版式 = 一个 715 设备高的浮窗外框（374..1491 × 164..879，不铺满页区）：

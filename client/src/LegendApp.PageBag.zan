@@ -2,6 +2,7 @@ using System;
 using Gui;
 using Gui.Widget;
 using Legend;
+using Game.Data;
 
 // 页 20「背包」——照原版逐像素还原。
 // 原版实测（mir2/mir/背包.png 整页 + 背包-天书/内功/宝石/技能.png 四张特写）：

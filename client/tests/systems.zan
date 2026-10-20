@@ -1,6 +1,7 @@
 using System;
 using System.Json;
 using Legend;
+using Game.Data;
 class LegendSystemTests {
     static int checks;
     static void Check(bool ok, string message) { checks = checks + 1; if (!ok) { throw new Exception("FAIL " + message); } }

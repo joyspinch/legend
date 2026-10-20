@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using Gui;
 using Legend;
+using Game.Data;
 
 /* 一个 op 回复的回调。 */
 delegate void NetReply(JsonValue r);

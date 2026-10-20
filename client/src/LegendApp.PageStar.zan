@@ -2,6 +2,7 @@ using System;
 using Gui;
 using Gui.Widget;
 using Legend;
+using Game.Data;
 
 // 页 16「将星图谱」——照原版还原（将星图谱.png），规格见 Spec / REFERENCE_AUDIT §5.4。
 // · 左侧 13 格分类分栏（8 个分类 + 5 个「待开放」，原版后 5 格只画一个小横杠）

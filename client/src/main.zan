@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Diagnostics;
 using Gui;
 using Gui.Widget;
 using Gui.Backend;
 using Legend;
+using Game.Data;
 
 // 迷你传奇 · 客户端（按原版 1:1 还原）。
 // 设计纪律（与 REFERENCE_AUDIT.md 配套）：
@@ -57,7 +58,7 @@ partial class LegendApp {
         string dataDir = KnownFolders.GetEnv("LEGEND_DATA_DIR");
         if (dataDir.Length == 0) { dataDir = "data"; }
         GameTables.Initialize(dataDir);
-        navigationData = DataTable.Load(dataDir + "/navigation.csv", "id:0:30,name,icon,label,x,w");
+        navigationData = TableLoader.Load(dataDir + "/navigation.csv", "id:0:30,name,icon,label,x,w");
         navItems.Clear();
         for (int ni = 0; ni <= 30; ni = ni + 1) {
             DataRow r = navigationData.At(ni);

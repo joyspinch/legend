@@ -2,6 +2,7 @@ using System;
 using Gui;
 using Gui.Widget;
 using Legend;
+using Game.Data;
 
 // 页 17「回收系统」——照原版逐像素还原（`mir2/mir/回收系统.png`）。
 // 版式与交易市场/成就同一副外框（374..1491 × 164..879，`Spec.Mk*` 复用）：
@@ -295,7 +296,7 @@ partial class LegendApp {
     void RcRecycle(RcRow r, Input qty) {
         if (net.Self() == null) { RcSay("回收：「" + r.name + "」×1（离线请在背包页回收）。"); return; }
         if (r == null || r.id <= 0) { RcSay("这一行是展示行。"); return; }
-        int n = DataTable.Integer(qty.GetText(), "回收数量");
+        int n = DataValues.ParseInt(qty.GetText(), "回收数量");
         if (n <= 0) { RcSay("数量要大于 0。"); return; }
         net.RecycleOne(r.id, n);
     }

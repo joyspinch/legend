@@ -1,5 +1,6 @@
 using System;
 using System.Json;
+using Game.Data;
 namespace Legend;
 
 public class Game {
@@ -692,7 +693,7 @@ public class Game {
     }
     bool CodexHas(int definitionId) { for (int i = 0; i < codexItems.Count; i = i + 1) { if (codexItems[i] == definitionId) { return true; } } return false; }
     int CodexCount() { return codexItems.Count; }
-    int SetCount(DataRow row) { int count = 0; foreach (string token in row.Text("items").Split("|")) { if (CodexHas(DataTable.Integer(token, "set item"))) { count = count + 1; } } return count; }
+    int SetCount(DataRow row) { int count = 0; foreach (string token in row.Text("items").Split("|")) { if (CodexHas(DataValues.ParseInt(token, "set item"))) { count = count + 1; } } return count; }
     int SetBonus(string key) { int bonus = 0; foreach (DataRow row in GameTables.current.sets.rows) { if (row.Text("stat") == key && SetCount(row) >= row.Int("required")) { bonus = bonus + row.Int("value"); } } return bonus; }
     string SetSummary() {
         string text = "套装收藏（" + Rules.N(CodexCount()) + "件）：";

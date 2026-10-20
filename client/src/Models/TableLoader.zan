@@ -1,0 +1,26 @@
+using System;
+using Game.Data;
+
+// 数值表加载（legend 口径）：解析与通用校验在仓库包 Zan.Game 的
+// Game.Data 里，这里只留 legend 自己的两条规矩——列规格校验、id 必须是
+// 规范十进制（"007" 不算 id，"7" 算）。
+public class TableLoader {
+    static DataTable Load(string path, string schema) {
+        DataTable table = Game.Data.DataTable.Load(path);
+        TableSchema spec = TableSchema.Parse(schema);
+        spec.ValidateHeader(table.Header(), path);
+        for (int i = 0; i < table.Count(); i = i + 1) {
+            DataRow row = table.RowAt(i);
+            spec.ValidateRow(row, path);
+            // id 是数字的表（规格里 id 带范围）才要求规范十进制；
+            // 文本键的表（balance.csv 的 id 是规则名）不适用。
+            if (spec.IdHasRange()) {
+                string id = row.RequireText("id");
+                if (id != Convert.ToString(DataValues.ParseInt(id, path + ": id"))) {
+                    throw new Exception(path + ": ID must be canonical decimal");
+                }
+            }
+        }
+        return table;
+    }
+}
