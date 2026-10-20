@@ -361,7 +361,10 @@ public class Fight {
                 Session s = sessions[i];
                 if (s == null || s.row == null || s.kicked) { continue; }
                 if (s.autoMobId > 0 && Fight.Tpl(s.autoMobId) == null) {
-                    Fight.Auto(s, null, false);
+                    /* 第二个形参是怪物模板 id（int），关挂机时用不上——早先
+                     * 这里传 null，新版检查器把"null 绑不上值类型"判成错误，
+                     * 传 0 语义相同。 */
+                    Fight.Auto(s, 0, false);
                 }
             }
 
