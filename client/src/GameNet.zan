@@ -2329,7 +2329,7 @@ public class GameNet {
     void RedpackGrab() {
         this.Op("{\"op\":\"redpack\",\"grab\":1}", (JsonValue r) => {
             if (this.TakeSelf(r)) {
-                this.AddFeed("抢到 " + Convert.ToString(r.Get("redpack").Int("grab", 0)) + " 金币红包！");
+                this.AddFeed("抢到 " + Convert.ToString(r.PathInt("redpack.grab", 0)) + " 金币红包！");
                 this.RefreshRedpack();
             }
         });

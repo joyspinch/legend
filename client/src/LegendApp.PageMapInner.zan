@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using Gui;
 using Gui.Widget;
 using Legend;
@@ -55,14 +56,10 @@ partial class LegendApp {
 
     // 名字字数（UTF-8 码点数）。**别用 `string.Length`**：那是字节数，
     // 中文一字三字节，3 字名会被当成 9 字节选到最大的名牌。
+    // 走 stdlib `System.Text.Encoding.CodePointCount`（按 UTF-8 首字节
+    // 声明的宽度前进，非法序列按 1 码点计）——别自己手搓字节宽度表。
     int MiChars(string s) {
-        int n = 0;
-        int i = 0;
-        while (i < s.Length) {
-            i = i + QrEncoder.SeqByteLen(s[i] & 255);
-            n = n + 1;
-        }
-        return n;
+        return Encoding.CodePointCount(s);
     }
 
     // 名牌素材：怪 00021..00026 / 玩家 00031..00036，N = 名字字数（1..6）。
