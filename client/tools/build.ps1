@@ -1,4 +1,4 @@
-param([string]$Compiler = '', [string]$Output = '')
+param([string]$Compiler = '', [string]$Output = '', [string[]]$ZancArgs = @())
 $ErrorActionPreference = 'Stop'
 $template = Split-Path $PSScriptRoot -Parent
 $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -16,11 +16,16 @@ $sources = @(Get-ChildItem "$template/src" -Recurse -Filter *.zan |
 # 不用 Chart，复用 _scratch/stdlib-noc（HEAD 干净副本）做局部旁路。
 $nocRoot = Join-Path $repo '_scratch/stdlib-noc'
 $useNoc = (Test-Path $nocRoot) -and $env:LEGEND_STDLIB_HEAD -eq '1'
+$zargs = @($sources)
 if ($useNoc) {
-    & $Compiler @sources --stdlib-path $nocRoot -o "$Output/Legend.exe"
+    $zargs += @('--stdlib-path', $nocRoot)
 } else {
-    & $Compiler @sources --auto-stdlib -o "$Output/Legend.exe"
+    $zargs += @('--auto-stdlib')
 }
+# 单文件发布：-ZancArgs '--publish' 让 zanc 内嵌资源并产出自包含 exe。
+if ($ZancArgs) { $zargs += $ZancArgs }
+$zargs += @('-o', "$Output/Legend.exe")
+& $Compiler @zargs
 if ($LASTEXITCODE -ne 0) { throw 'Legend compilation failed' }
 foreach ($dir in @('assets', 'skins', 'data')) { Copy-Item -LiteralPath "$template/$dir" -Destination $Output -Recurse -Force }
 Write-Host "Built: $Output/Legend.exe"

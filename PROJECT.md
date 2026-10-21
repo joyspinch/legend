@@ -21,6 +21,18 @@ pwsh -File client/tools/build.ps1
 
 ZAN_HOME 指向 zan-lang 仓库时用它的 `build/zanc.exe` 与 `stdlib/`；
 不设则用 PATH 上的 `zanc`。stdlib 也可用 ZAN_STDLIB 单独指定。
+### 单文件发布
+
+发一个自包含 exe（资源内嵌、GUI 驱动静态链接，exe 旁边不需要 assets/skins/data）：
+
+```powershell
+pwsh -Command "& 'client/tools/build.ps1' -ZancArgs @('--publish','--link-mode','static')"
+```
+
+- `--publish`：内嵌 assets 资源并做发布级优化（实测 405 files → 36MB exe）。
+- `--link-mode static`：把 zan_gui / zan_image 驱动静态链接进 exe；
+  默认 `shared` 会在 exe 旁放两个 dll，那就不是单文件。
+- 自检：把 exe 旁的 `zan_gui.dll` / `zan_image.dll` 挪走再启动，能起来即为真单文件。
 
 ## 公共包
 
