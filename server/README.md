@@ -96,7 +96,12 @@ tools/dev_env.py        本地凭据引导：随机生成会话密钥与管理�
 
 ```bash
 # 用 zanc 编译（模板是多文件工程：把 src 下所有 .zan 一起给编译器）
-zanc src/main.zan src/**/*.zan --auto-stdlib -o legend-server.exe
+# 注意：多文件工程必须由 shell 展开文件列表——`src/**/*.zan` 这种写法在
+# PowerShell 下不递归展开，编译会以 "Rules / GameSeed 等未定义" 失败。
+#   PowerShell:
+#   zanc (Get-ChildItem -Recurse src -Filter *.zan | % FullName) --auto-stdlib -o legend-server.exe
+#   bash:
+#   zanc $(find src -name '*.zan') --auto-stdlib -o legend-server.exe
 # 或者用 IDE 新建项目（模板名"游戏服务端"）后直接运行
 
 # 用本地凭据引导工具起服：随机生成会话密钥 + 管理员种子口令并注入进程环境

@@ -11,6 +11,7 @@ namespace ZanWeb.Index;
 /* 落地页：服务器状态 — 区服列表（状态+实时在线）、开放地图与最新公告
    （库）。无鉴权，只暴露展示性数字；注册与找回密码的入口也在这里。 */
 [Route("[controller]/[action]")]
+[Custom(Authorization = CustomAuthorization.None)]
 [Description("首页")]
 public class Index : Controller {
     [HttpGet]
@@ -87,7 +88,7 @@ public class Index : Controller {
             + "## 快捷入口\n\n"
             + "- [账号注册](/register): 新玩家账号创建\n"
             + "- [客户端下载](/): 获取最新官方微端\n"
-            + "- [API 文档](/api/docs): OpenAPI 开放接口说明\n";
+            + "- [API 文档](/api/docs.json): OpenAPI 标准交互文档\n";
 
         this.SmartView(d, md);
     }

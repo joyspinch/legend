@@ -120,7 +120,7 @@ public class Program {
             .SetDetails("本服务提供区服状态管理、角色与背包数据维护、在线玩家统计、公告与交易市场。")
             .AddLink("Public", "Health Check", "/health", "游戏网关与数据库存活状态")
             .AddLink("Public", "Game Portal", "/", "游戏官网首页与开服公告")
-            .AddLink("APIs", "API Documentation", "/api/docs", "OpenAPI 标准交互文档")
+            .AddLink("APIs", "API Documentation", "/api/docs.json", "OpenAPI 标准交互文档")
             .AddLink("Game APIs", "Player Account", "/api/game/login", "游戏客户端账号验证与角色登录接口");
         app.UseLlmsTxt(llms);
 
