@@ -44,6 +44,20 @@ cd build/legend-game
 .\Legend.exe
 ```
 
+## 服务端凭据
+
+`server/` 是独立的服务端工程，仓库里**不含任何可用凭据**：`config/app.json` 的
+`[auth].secret`（会话 Cookie 签名密钥）与 `[auth].bootstrapPassword`（空库种子
+口令）都是空串，服务端因此默认拒绝一切管理后台登录。首次本地起服用随仓库提供的
+引导工具，它会随机生成这两个值、存进 gitignore 的本地文件，并注入进程环境：
+
+```powershell
+python server/tools/dev_env.py launch
+```
+
+口令模型、环境变量覆盖方式与公网部署要求，见
+[`server/README.md`](server/README.md) 的「凭据模型」一节。
+
 ## 测试
 
 ```powershell

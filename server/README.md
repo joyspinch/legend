@@ -89,6 +89,7 @@ src/Framework/GameSeed.zan  游戏域种子（3 区服、欢迎公告；游戏�
                         main.zan 里先 Schema.Ensure 后 GameSeed.Ensure 补种
 views/                  视图（与控制器一一对应；Account/Index/Admin 三套布局）
 tools/e2e.py            端到端自检：注册/找回 + 完整协议 + GM + 战斗闭环（138 项断言）
+tools/dev_env.py        本地凭据引导：随机生成会话密钥与管理员种子口令（仓库不含密钥）
 ```
 
 ## 快速开始
@@ -98,16 +99,59 @@ tools/e2e.py            端到端自检：注册/找回 + 完整协议 + GM + �
 zanc src/main.zan src/**/*.zan --auto-stdlib -o legend-server.exe
 # 或者用 IDE 新建项目（模板名"游戏服务端"）后直接运行
 
-./legend-server.exe
+# 用本地凭据引导工具起服：随机生成会话密钥 + 管理员种子口令并注入进程环境
+python tools/dev_env.py launch
 # [game] tcp://0.0.0.0:47100
 # http-worker http://0.0.0.0:48099
 ```
 
 - 玩家网页：`http://127.0.0.1:48099/` — 区服列表 + **注册账号** +
   **找回密码**；注册即建 `game_account`，之后连 TCP 网关进游戏。
-- 管理后台：`http://127.0.0.1:48099/admin`，种子账号 **admin / admin-bootstrap-2026**（[auth].bootstrapPassword，≥12 字符，包 Schema 硬校验）。
+- 管理后台：`http://127.0.0.1:48099/admin`，种子账号 **admin**，口令由
+  `tools/dev_env.py` 随机生成并打印（仓库里不含任何默认口令）。
 - 数据库默认 SQLite（`data/app.db`），首次启动自动建表与种子；换 MySQL
   改 `[database]` 即可，游戏代码不感知驱动。
+
+## 凭据模型（仓库不含可用凭据）
+
+`config/app.json` 的 `[auth].secret` 与 `[auth].bootstrapPassword`
+**在仓库里是空串**，这是引擎设计的 fail-closed 状态：
+
+- `[auth].secret` 是会话 Cookie 的签名密钥，引擎要求 ≥32 字符。未配置时
+  `AuthToken.Ready()` 为 false，**发不出任何管理员会话 Cookie**，后台登录
+  直接被拒（页面提示「服务端未配置会话密钥：请在 config/app.json 的
+  `[auth].secret`（或环境变量 `ZAN_AUTH_SECRET`）填入至少 32 字符」）。
+- `[auth].bootstrapPassword` 是空库首启时种出 `admin` 账号的种子口令，引擎
+  要求 ≥12 字符。缺它时 `Schema.SeedAdmin` 抛异常，**空库不建表也不种子**；
+  服务端仍会启动，但 `main.zan` 里的 `if (ready)` 分支不执行 —— 连游戏世界
+  （3 区服 / 35 地图 / 732 物品 / 232 刷怪点 / 2662 掉落，来自 `data/M2.DB`）
+  也不会种入。
+
+本地开发用 `tools/dev_env.py` 一条命令解决：它用 CSPRNG 生成 48 字符会话密钥
+与 20 字符种子口令，写进 gitignore 的 `data/.dev-secrets.json`，并以环境变量
+注入服务端进程（引擎的 `Cfg.ApplyEnv` 在读文件之后执行，**环境变量优先于文件**）：
+
+```bash
+python tools/dev_env.py init      # 只生成（可重复执行，已存在则复用）
+python tools/dev_env.py show      # 打印当前生效的密钥与口令
+python tools/dev_env.py env       # 打印 KEY=VALUE，便于手工注入
+python tools/dev_env.py launch    # 带凭据起服（等价于手工设置三个环境变量）
+```
+
+`tools/e2e.py` / `tools/sec_probe.py` / `tools/e2e_legend.py` 里的管理员口令同样
+从这份本地文件（或环境变量）读取，仓库里不再出现任何可用口令。
+
+**公网部署**必须覆盖这两个值（改完 `auth.secret` 旧会话全部失效）：
+
+| 变量 | 作用 | 引擎下限 |
+|---|---|---|
+| `ZAN_AUTH_SECRET` | 覆盖 `[auth].secret`（会话 Cookie 签名密钥） | ≥32 字符 |
+| `ZAN_BOOTSTRAP_ADMIN_PASSWORD` | 覆盖 `[auth].bootstrapPassword`（空库种子口令） | ≥12 字符 |
+
+另外 `[game].gatePass`（网关接入口令）与游戏加密的共享密钥（`GameCfg` 的
+`secret`，客户端侧为 `src/Secure.zan` 的同名常量）是**客户端与服务端配对的
+协议常量**，客户端二进制里本来就含有它们。公网部署应一并覆盖
+`[game].gatePass` 并**同步重编客户端**，否则两端对不上。
 
 ## 完整玩家流程（前后端都通）
 

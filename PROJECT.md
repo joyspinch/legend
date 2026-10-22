@@ -60,3 +60,26 @@ python tests/test_rules_sync.py      # 跨端用例（规则表同步）
 python server/tools/sync_rules.py            # 同步
 python server/tools/sync_rules.py --check    # 只校验漂移
 ```
+
+### 服务端凭据
+
+服务端工程 `server/` **不在仓库里带任何可用凭据**：`config/app.json` 的
+`[auth].secret`（会话 Cookie 签名密钥，引擎要求 ≥32 字符）与
+`[auth].bootstrapPassword`（空库首启种出 `admin` 的种子口令，要求 ≥12 字符）
+都留空。留空是引擎设计的 fail-closed 状态——发不出管理员会话 Cookie，空库也不会
+种出带已知口令的管理员账号。
+
+本地开发用 `server/tools/dev_env.py` 生成随机会话密钥与种子口令，写进 gitignore
+的 `server/data/.dev-secrets.json`，再以环境变量（`ZAN_AUTH_SECRET` /
+`ZAN_BOOTSTRAP_ADMIN_PASSWORD`）注入服务端进程——引擎的 `Cfg.ApplyEnv` 在读文件
+之后执行，环境变量优先于文件。`server/tools/e2e.py`、`sec_probe.py`、
+`e2e_legend.py` 的管理员口令同样从这份本地文件读取。
+
+```powershell
+python server/tools/dev_env.py init      # 只生成（可重复执行）
+python server/tools/dev_env.py show      # 打印当前生效的密钥与口令
+python server/tools/dev_env.py launch    # 带凭据起服
+```
+
+公网部署必须覆盖这两个值，并同步覆盖 `[game].gatePass` 与客户端侧的加密共享
+密钥（否则客户端与服务端对不上）。详见 `server/README.md` 的「凭据模型」一节。
