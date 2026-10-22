@@ -28,6 +28,11 @@ import urllib.parse
 import urllib.request
 import urllib.error
 
+# 本地凭据引导（会话密钥 / 管理员种子口令）。仓库里不含任何可用凭据，
+# 口令由 tools/dev_env.py 用 CSPRNG 生成并存到 gitignore 的本地文件。
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import dev_env
+
 def _ports():
     """端口唯一信源是 config/app.json（[game].port + [server].port），
     不在脚本里再抄一份常量——改端口改一处就够。"""
@@ -381,7 +386,7 @@ ok(r is not None, "bob re-enters realm 1, character state kept")
 
 # ---------- 5. GM 后台 ----------
 st, html, setc = http("/admin/login", data={
-    "user": "admin", "pass": "admin-bootstrap-2026"})
+    "user": "admin", "pass": dev_env.admin_password()})
 cookie = ""
 for c in setc:
     if c.startswith("zsession="):

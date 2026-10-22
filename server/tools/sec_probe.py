@@ -24,6 +24,11 @@ import urllib.parse
 import urllib.request
 import urllib.error
 
+# 本地凭据引导（会话密钥 / 管理员种子口令）。仓库里不含任何可用凭据，
+# 口令由 tools/dev_env.py 用 CSPRNG 生成并存到 gitignore 的本地文件。
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import dev_env
+
 def _ports():
     """端口唯一信源是 config/app.json（[game].port + [server].port），
     不在脚本里再抄一份常量——改端口改一处就够。"""
@@ -200,15 +205,15 @@ if st == 200 and html.strip().startswith("{") and '"code":"0000"' in html:
     out("fail", "S4 admin-authz 未授权可调管理写接口")
 else:
     out("pass", "S4 admin-authz 未授权 POST 管理写接口被拒")
-st, html, setc = http("/admin/login", data={"user": "admin", "pass": "admin-bootstrap-2026"})
+st, html, setc = http("/admin/login", data={"user": "admin", "pass": dev_env.admin_password()})
 if setc:
     flags = " ".join(setc)
-    out("pass", "S4 admin-login 默认口令可登录（模板预期，生产必须改）")
+    out("pass", "S4 admin-login 本地引导口令可登录（仓库不含默认口令）")
     out("obs", "S4 admin cookie flags",
         "HttpOnly+SameSite" if ("HttpOnly" in flags and "SameSite" in flags)
         else flags)
 else:
-    out("fail", "S4 admin-login 默认口令登录未发 cookie")
+    out("fail", "S4 admin-login 口令登录未发 cookie")
 
 # ---------- S5 token lifecycle ----------
 st, j1 = api("/api/game/login", {"user": U, "pass": "pass123"})

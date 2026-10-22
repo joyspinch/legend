@@ -17,8 +17,8 @@
     "poolSize": 8
   },
   "auth": {
-    "secret": "aNWLcfJE5JyQGaaWOfLnuUtvynM4wEr4",
-    "bootstrapPassword": "admin-bootstrap-2026"
+    "secret": "",
+    "bootstrapPassword": ""
   },
   "worker": {
     "count": 1,

@@ -34,6 +34,11 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)          # server
 
+# 本地凭据引导（会话密钥 / 管理员种子口令）。仓库里不含任何可用凭据，
+# 口令由 tools/dev_env.py 用 CSPRNG 生成并存到 gitignore 的本地文件。
+sys.path.insert(0, HERE)
+import dev_env
+
 def _ports():
     """端口唯一信源是 config/app.json（[game].port + [server].port），
     不在脚本里再抄一份常量——改端口改一处就够。"""
@@ -135,7 +140,10 @@ def reset_db():
 
 def start_server(exe):
     log = open(os.path.join(ROOT, "data", "e2e_legend_server.log"), "ab")
-    proc = subprocess.Popen([exe], cwd=ROOT, stdout=log, stderr=log)
+    # 空库首启靠 ZAN_BOOTSTRAP_ADMIN_PASSWORD 种出管理员；
+    # ZAN_AUTH_SECRET 让会话 Cookie 的签名密钥也是本地随机值。
+    env = dev_env.env_for(dev_env.load(create=True))
+    proc = subprocess.Popen([exe], cwd=ROOT, stdout=log, stderr=log, env=env)
     if not wait_port():
         raise SystemExit("server did not listen on game port %d; see data/e2e_legend_server.log" % GAME_PORT)
     time.sleep(1.5)
@@ -169,7 +177,7 @@ def newchar(name):
     return c, (r["self"]["uid"] if r and r.get("self") else 0)
 
 def gm_login():
-    st, _, setc = http("/admin/login", data={"user": "admin", "pass": "admin-bootstrap-2026"})
+    st, _, setc = http("/admin/login", data={"user": "admin", "pass": dev_env.admin_password()})
     return "".join(x.split(";")[0] + "; " for x in setc)
 
 def gm_save(cookie, uid, nickname, gold="10000000", gems="1000", gift=None):
@@ -191,6 +199,8 @@ def main():
     if not os.path.exists(args.exe):
         raise SystemExit("server exe not found: " + args.exe)
 
+    # 父进程与被拉起的服务端必须用同一份凭据，否则"种下的口令"与"登录口令"会错位
+    dev_env.ensure_env()
     reset_db()
     proc = start_server(args.exe)
     try:
